@@ -1,0 +1,14 @@
+<div class="entry">
+  <h1><a href="/entry/{{ str(entry.index) }}">{{ escape(entry.title) }}</a></h1>
+  <div class="metadata">
+    {{ entry.author }}
+    |
+    {{ locale.format_date(entry.published, full_format=True, shorter=True) }}
+  </div>
+  {% if current_user and current_user.administrator %}
+    <div class="admin">
+      <a href="/compose?index={{ str(entry.index) }}">{{ _("Edit this post") }}</a>
+    </div>
+  {% end %}
+  <div class="body">{{ entry.html }}</div>
+</div>

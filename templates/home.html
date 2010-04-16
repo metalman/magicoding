@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block body %}
+  {% for entry in entries %}
+    {{ modules.Entry(entry) }}
+  {% end %}
+
+  {% if extra %}
+    <div style="text-align:center">
+      <a href="?start={{ str(extra.index) }}">Older</a>
+    </div>
+  {% end %}
+  <div><a href="/archive">{{ _("Archive") }}</a></div>
+{% end %}

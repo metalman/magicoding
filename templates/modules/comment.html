@@ -1,0 +1,14 @@
+<div class="comment">
+  <div class="metadata">
+    {% if comment.website %}
+        <a class="author" href="{{ comment.website }}">{{ escape(comment.author) }}</a>
+    {% else %}
+        <span class="author">{{ escape(comment.author) }}</span>
+    {% end %}
+    at
+    <span class="date">{{ locale.format_date(comment.published, gmt_offset=-480, full_format=True) }}</span>
+    <small>(+800TZ)</small>
+    says:
+  </div>
+  <div class="body">{{ comment.content }}</div>
+</div>
