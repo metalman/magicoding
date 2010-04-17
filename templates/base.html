@@ -1,32 +1,20 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
-    <title>{{ escape(handler.settings["blog_title"]) }}</title>
-    <link rel="stylesheet" href="/static/blog.css" type="text/css"/>
-    <link rel="alternate" href="/feed" type="application/atom+xml" title="{{ escape(handler.settings["blog_title"]) }}"/>
-    {% block head %}{% end %}
-  </head>
-  <body>
-    <div id="body">
-      <div id="header">
-        <div style="float:right">
-          {% if current_user and current_user.administrator %}
-            <a href="/compose">{{ _("New post") }}</a> -
-          {% end %}
-          <a href="/about">{{ _("About") }}</a> -
-          {% if current_user %}
-            {{ escape(current_user.nickname()) }}
-            <a href="{{ escape(users.create_logout_url(request.uri)) }}">{{ _("Sign out") }}</a>
-          {% else %}
-            {{ _('<a href="%(url)s">Sign in</a>') % {"url": escape(users.create_login_url(request.uri))} }}
-          {% end %}
-        </div>
-        <h1><a href="/">{{ escape(handler.settings["blog_title"]) }}</a></h1>
-      </div>
-      <div id="content">{% block body %}{% end %}</div>
-      <div id="footer">{% block footer %}{% end %}</div>
+{% extends "layout.html" %}
+
+{% block content %}
+  <div id="sidebar">
+    {{ modules.Tags() }}
+
+    <div class="misc">
+      <h4>Misc</h4>
+      <ul>
+        {% if current_user and current_user.administrator %}
+          <li><a href="/compose">{{ _("New post") }}</a></li>
+        {% end %}
+        <li><a href="/archive">{{ _("Archive") }}</a></li>
+        <li><a href="/about">{{ _("About") }}</a></li>
+      </ul>
     </div>
-    {% block bottom %}{% end %}
-  </body>
-</html>
+
+  </div>
+  <div id="main">{% block main %}{% end %}</div>
+{% end %}

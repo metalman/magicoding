@@ -1,14 +1,20 @@
 <div class="entry">
   <h1><a href="/entry/{{ str(entry.index) }}">{{ escape(entry.title) }}</a></h1>
   <div class="metadata">
-    {{ entry.author }}
-    |
-    {{ locale.format_date(entry.published, full_format=True, shorter=True) }}
+    <span class="author">{{ entry.author }}</span> |
+    <span class="date">{{ locale.format_date(entry.published, gmt_offset=-480, full_format=True) }} <small>(CST)</small></span> |
+    <span class="tags">tags:
+      {% if entry.tags %}
+        {% for tag in entry.tags %}
+          <a href="/tag/{{ tag }}">{{ tag }}</a>
+        {% end %}
+      {% end %}
+    </span>
   </div>
   {% if current_user and current_user.administrator %}
     <div class="admin">
       <a href="/compose?index={{ str(entry.index) }}">{{ _("Edit this post") }}</a>
     </div>
   {% end %}
-  <div class="body">{{ entry.html }}</div>
+  <div class="content">{{ entry.html }}</div>
 </div>

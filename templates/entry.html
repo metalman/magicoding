@@ -8,7 +8,7 @@
       border: 1px solid #DDD;
     }
     .comment .metadata,
-    .comment .body {
+    .comment .content {
       padding: 4px;
     }
     .comment .author{
@@ -17,10 +17,10 @@
   </style>
 {% end %}
 
-{% block body %}
+{% block main %}
   {{ modules.Entry(entry) }}
 
-  <div class="comments">
+  <div id="comment" class="comments">
     <h3>Comments</h3>
     {% if comments %}
       {% for comment in comments %}
@@ -43,7 +43,9 @@
         <input type="text" name="website" size="20" value=""/>
         <lable for="website">Website</label><br />
       </p>
-        <textarea name="content" rows="10" cols="40" class="content"></textarea>
+        <textarea name="content" rows="10" cols="50" class="content"></textarea>
+        <br />
+        (No more than 1000 words.)
       </p>
       <p>
         <input type="submit" value="{{ _("Submit comment") }}" class="submit"/>

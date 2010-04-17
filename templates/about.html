@@ -1,5 +1,5 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 
-{% block body %}
+{% block content %}
   {{ markdown("about.md", toc=True) }}
 {% end %}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block body %}
+{% block main %}
   {% for entry in entries %}
     {{ modules.Entry(entry) }}
   {% end %}
@@ -10,5 +10,4 @@
       <a href="?start={{ str(extra.index) }}">Older</a>
     </div>
   {% end %}
-  <div><a href="/archive">{{ _("Archive") }}</a></div>
 {% end %}

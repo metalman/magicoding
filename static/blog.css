@@ -68,7 +68,7 @@ a code {
   color: #00c;
 }
 
-#body {
+#wrapper {
   max-width: 800px;
   margin: auto;
 }
@@ -100,6 +100,21 @@ a code {
   margin-top: 3em;
 }
 
+#sidebar {
+  float: right;
+  width: 180px;
+  background: #EBEFF9;
+}
+
+#sidebar h4 {
+  background: #C2CFF1;
+  padding: 2px 4px;
+}
+
+#main {
+  margin-right: 190px;
+}
+
 .entry h1 a {
   color: black;
   text-decoration: none;
@@ -118,11 +133,16 @@ a code {
   margin-bottom: 1em;
 }
 
-.entry .body {
+.entry .content {
   margin-top: 1em;
   line-height: 16pt;
 }
 
 .metadata .date {
   color: gray;
+}
+
+.visualclear {
+  display: block;
+  clear: both;
 }
