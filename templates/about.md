@@ -46,7 +46,6 @@ In [Python](http://www.python.org/):
   * [http://halfcool-devel.blogspot.com/](http://halfcool-devel.blogspot.com/)
   * [http://hi.baidu.com/whycrying](http://hi.baidu.com/whycrying)
   * [http://sites.google.com/site/halfcool/](http://sites.google.com/site/halfcool/)
-  * [http://github.com/metalman](http://github.com/metalman)
 
 Observing
 ---------

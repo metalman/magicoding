@@ -24,7 +24,7 @@ indexes:
   - name: index
     direction: desc
 
-# Used 17 times in query history.
+# Unused in query history -- copied from input.
 - kind: Comment
   properties:
   - name: entry_index

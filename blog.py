@@ -16,8 +16,10 @@ from lib import htmlconverter
 #import hashlib
 #cookie_secret = hashlib.sha1("zhangkaizhao").hexdigest()
 
-AUTHOR = u'metalman' # or get administrator's nickname from google account
-                     # in a request handler: self.current_user.nickname()
+AUTHOR = u'zhangkaizhao'
+# or get administrator's nickname from google account
+# in a request handler: self.current_user.nickname()
+
 POSTS_PER_PAGE = 10
 POSTS_PER_ARCHIVE = 20
 POSTS_IN_FEED = 10
@@ -371,7 +373,7 @@ class WSGIApplication(tornado.wsgi.WSGIApplication):
         ]
 
         settings = dict(
-            blog_title=u"metalman's blog",
+            blog_title=u"Magic coding!",
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             ui_modules={"Entry": EntryModule,
                         "Comment": CommentModule,
