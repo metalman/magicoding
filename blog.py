@@ -144,8 +144,13 @@ def update_entry(index, title, content, html, tags):
         new_tag.put()
     for tag in removed_entry_tags:
         old_tag = Tag.gql("WHERE name = :1", tag).get()
-        old_tag.count -= 1
-        old_tag.put()
+        if old_tag:
+            old_tag_count = old_tag.count
+            if old_tag.count < 2:
+                old_tag.delete()
+            else:
+                old_tag.count -= 1
+                old_tag.put()
     def txn():
         entry.title = title
         entry.content = content
