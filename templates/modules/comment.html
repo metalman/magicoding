@@ -1,7 +1,7 @@
 <div class="comment">
   <div class="metadata">
     {% if comment.website %}
-        <a class="author" href="{{ comment.website }}">{{ escape(comment.author) }}</a>
+        <a class="author" href="{{ escape(comment.website) }}">{{ escape(comment.author) }}</a>
     {% else %}
         <span class="author">{{ escape(comment.author) }}</span>
     {% end %}

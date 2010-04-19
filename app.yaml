@@ -12,4 +12,4 @@ handlers:
   upload: static/robots.txt
 
 - url: /.*
-  script: blog.py
+  script: run.py

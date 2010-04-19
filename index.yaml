@@ -11,22 +11,15 @@ indexes:
 # your application using appcfg.py.
 
 # Unused in query history -- copied from input.
-- kind: BlogEntry
-  properties:
-  - name: entry_index
-  - name: index
-    direction: desc
-
-# Unused in query history -- copied from input.
-- kind: BlogEntry
-  properties:
-  - name: tags
-  - name: index
-    direction: desc
-
-# Unused in query history -- copied from input.
 - kind: Comment
   properties:
   - name: entry_index
+  - name: index
+    direction: desc
+
+# Unused in query history -- copied from input.
+- kind: Entry
+  properties:
+  - name: tags
   - name: index
     direction: desc

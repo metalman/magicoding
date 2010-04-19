@@ -27,7 +27,7 @@
         {{ modules.Comment(comment) }}
       {% end %}
       {% if comment_extra %}
-        <div>
+        <div style="text-align:right;">
           <a href="?comment_start={{ str(comment_extra.index) }}">More comments</a>
         </div>
       {% end %}
@@ -70,6 +70,10 @@
                   $(form[required[i]]).select();
                   return false;
               }
+          }
+          if (form["content"].value.length > 1000) {
+              $(form["content"]).select();
+              return false;
           }
           return true;
       });
