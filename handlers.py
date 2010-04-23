@@ -132,7 +132,7 @@ class CommentHandler(BaseHandler):
         website=self.get_argument("website", "")
         if website:
             website = tornado.escape.url_escape(website)
-            if not website.startswith("http://"):
+            if not website.startswith("http://") or not website.startswith("https://"):
                 website = u"http://" + website
         content = self.get_argument("content")
         if not isinstance(content, unicode):
