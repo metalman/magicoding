@@ -1,6 +1,10 @@
 History
 =======
 
+* Apr,27,2010 version: 0.12 by zhangkaizhao@gmail.com
+
+    Add comments count in memcache
+
 * Apr,23,2010 version: 0.1 by zhangkaizhao@gmail.com
 
     First version for use. Running on http://magicoding.appspot.com/
