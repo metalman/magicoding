@@ -138,6 +138,11 @@ a code {
   line-height: 16pt;
 }
 
+.entry .extra .metadata {
+  background: #F9F9F9;
+  padding: 2px 4px;
+}
+
 .metadata .date {
   color: gray;
 }

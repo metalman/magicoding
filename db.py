@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
 from config import AUTHOR
 
@@ -187,6 +188,7 @@ def post_comment(entry_index, author, website, content):
         )
         new_comment.put()
     db.run_in_transaction(txn)
+    memcache.incr(u'entry-%s-comments-count' % entry_index)
 
 def get_tags():
     """ number of tags is few, no more than 1000. """

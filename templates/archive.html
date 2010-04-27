@@ -26,7 +26,7 @@
         <div class="title"><a href="/entry/{{ str(entry.index) }}">{{ escape(entry.title) }}</a></div>
         <div class="metadata">
           <span class="author">{{ entry.author }}</span> |
-          <span class="date">{{ locale.format_date(entry.published, gmt_offset=-480, full_format=True) }} <small>(CST)</small></span> |
+          <span class="date">{{ locale.format_date(entry.published, gmt_offset=-480, full_format=True) }} <small>(+800TZ)</small></span> |
           <span class="tags">tags:
             {% if entry.tags %}
               {% for tag in entry.tags %}

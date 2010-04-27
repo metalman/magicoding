@@ -6,7 +6,7 @@
         <span class="author">{{ escape(comment.author) }}</span>
     {% end %}
     at
-    <span class="date">{{ locale.format_date(comment.published, gmt_offset=-480, full_format=True) }} <small>(CST)</small></span> says:
+    <span class="date">{{ locale.format_date(comment.published, gmt_offset=-480, full_format=True) }} <small>(+800TZ)</small></span> says:
   </div>
   <div class="content">{{ comment.content }}</div>
 </div>
