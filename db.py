@@ -3,12 +3,12 @@
 from google.appengine.ext import db
 from google.appengine.api import memcache
 
-from config import AUTHOR
+from config import AUTHOR, COMMENTS_PER_PAGE
 
 __all__ = [
     'get_max_index',
     'get_entries', 'post_entry', 'update_entry',
-    'get_comments', 'post_comment',
+    'get_comments', 'post_comment', 'get_comments_count',
     'get_tags',
 ]
 
@@ -189,6 +189,21 @@ def post_comment(entry_index, author, website, content):
         new_comment.put()
     db.run_in_transaction(txn)
     memcache.incr(u'entry-%s-comments-count' % entry_index)
+
+def get_comments_count(entry_index):
+    count_key = u"entry-%s-comments-count" % entry_index
+    count = memcache.get(count_key) # read from memcache
+    extra_comment = None
+    if count is None:
+        # read from db
+        comments, extra_comment = get_comments(entry_index,
+            batch_size=COMMENTS_PER_PAGE)
+        count = len(comments)  # this is no more than batch_size
+        # set comments count to memcache
+        # generally count is less than COMMENTS_PER_PAGE
+        if not extra_comment:
+            memcache.add(count_key, str(count))
+    return count, extra_comment
 
 def get_tags():
     """ number of tags is few, no more than 1000. """
