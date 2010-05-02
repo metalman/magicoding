@@ -1,6 +1,11 @@
 {% extends "layout.html" %}
 
-{% block content %}
+{% block head %}
+  <link rel="stylesheet" href="/static/css/base.css" type="text/css"/>
+  {% block inlinecss %}{% end %}
+{% end %}
+
+{% block body %}
   <div id="sidebar">
     {{ modules.Tags() }}
 

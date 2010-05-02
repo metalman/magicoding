@@ -62,10 +62,10 @@ class EntryHandler(BaseHandler):
         if not entry: raise tornado.web.HTTPError(404)
         # XXX maybe should do comments paging with ajax
         comment_start = self.get_argument("comment_start", None)
-        comments, comment_extra = db.get_comments(index,
+        comments, extra_comment = db.get_comments(index,
             comment_start, config.COMMENTS_PER_PAGE)
         self.render("entry.html",
-            entry=entry, comments=comments, comment_extra=comment_extra)
+            entry=entry, comments=comments, extra_comment=extra_comment)
 
 
 class ArchiveHandler(BaseHandler):
@@ -145,7 +145,7 @@ class CommentHandler(BaseHandler):
             website=website,
             content=content,
         )
-        self.redirect("/entry/" + str(entry_index) + '#comment')
+        self.redirect("/entry/" + str(entry_index) + '#comments')
 
 
 class AboutHandler(BaseHandler):

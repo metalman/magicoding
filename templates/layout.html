@@ -4,8 +4,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
     <title>{{ escape(handler.settings["blog_title"]) }}</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon"/>
-    <link rel="stylesheet" href="/static/blog.css" type="text/css"/>
     <link rel="alternate" href="/feed" type="application/atom+xml" title="{{ escape(handler.settings["blog_title"]) }}"/>
+    <link rel="stylesheet" href="/static/css/layout.css" type="text/css"/>
     {% block head %}{% end %}
   </head>
   <body>
@@ -21,15 +21,16 @@
         </div>
         <h1><a href="/">{{ escape(handler.settings["blog_title"]) }}</a></h1>
       </div>
-      <div id="content">{% block content %}{% end %}</div>
+      <div id="body">{% block body %}{% end %}</div>
       <div class="visualclear"><!-- --></div>
       <div id="footer">
         {% block footer %}
           <p><small>Except where otherwise noted, content on this site is licensed under a <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a> License</small></p>
           <p>Powered by
             <a href="http://www.python.org/">Python</a>,
-            <a href="http://code.google.com/appengine">Google App Engine</a> and
-            <a href="http://github.com/facebook/tornado">Tornado</a>.
+            <a href="http://code.google.com/appengine">Google App Engine</a>,
+            <a href="http://github.com/facebook/tornado">Tornado</a> and
+            <a href="http://www.freewisdom.org/projects/python-markdown/">Python Markdown</a>.
           </p>
           <p>
             ©2010 Kaizhao Zhang - <a href="/about">About</a>
