@@ -1,6 +1,10 @@
 History
 =======
 
+* May,02,2010 version: 0.1.3 by zhangkaizhao@gmail.com
+
+    Add comment content characters counter.
+
 * Apr,28,2010 version: 0.1.2 by zhangkaizhao@gmail.com
 
     Add comments count in memcache.
