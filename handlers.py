@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import markdown
 import functools
 import os.path

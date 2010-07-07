@@ -3,12 +3,12 @@ About this blog
 
 ### Why this blog
 
-Because I can't use [Blogger](http://halfcool-devel.blogspot.com/)
-and [Google site](http://sites.google.com/site/halfcool/)
+Because I can't use [my Blogger](http://halfcool-devel.blogspot.com/)
+and [my Google site](http://sites.google.com/site/halfcool/)
 directly for a long time.
 I'm just a programmer and I do all about programming. :-)
 
-### How this blog comes out
+### How did this blog come out
 
 This blog is modified from the appengine demo of
 [Tornado](http://github.com/facebook/tornado).
@@ -61,5 +61,5 @@ Some links
   * [Tim](http://timyang.net/)
   * [Nicholas](http://nichol.as/)
 
---
-Last updated on Apr,19,2010
+--  
+Last updated on May,14,2010

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from google.appengine.ext import db
 from google.appengine.api import memcache
 

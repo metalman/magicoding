@@ -1,5 +1,18 @@
 {% extends "layout.html" %}
 
+{% block head %}
+  <style type="text/css">
+    #body {
+      background: #FFF;
+      border: 1px solid #BBB;
+      padding: 0.5em;
+    }
+    #footer {
+      margin-right: 10px;
+    }
+  </style>
+{% end %}
+
 {% block body %}
   {{ markdown("about.md", toc=True) }}
 {% end %}
