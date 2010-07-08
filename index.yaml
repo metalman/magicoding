@@ -10,14 +10,14 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 55 times in query history.
+# Used 2 times in query history.
 - kind: Comment
   properties:
   - name: entry_index
   - name: index
     direction: desc
 
-# Used 2 times in query history.
+# Unused in query history -- copied from input.
 - kind: Entry
   properties:
   - name: tags
