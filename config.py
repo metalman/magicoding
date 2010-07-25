@@ -3,10 +3,9 @@
 ############################
 from os.path import join, dirname
 
-BLOG_TITLE = u"Magic coding!"
+APP_TITLE = u"Magic coding!"
 AUTHOR = u'zhangkaizhao'
-# or get administrator's nickname from google account
-# in a request handler: self.current_user.nickname()
+AUTHOR_EMAIL = u'zhangkaizhao@gmail.com'
 
 # cookie_secret:
 #import hashlib

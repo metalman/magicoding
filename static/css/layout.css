@@ -56,13 +56,17 @@ a code {
   color: #00c;
 }
 
+blockquote {
+  color: gray;
+}
+
 #wrapper {
   margin: auto;
 }
 
 #header {
   background-color: #3b5998;
-  padding: 5px 10px 10px;
+  padding: 5px 10px;
   margin-bottom: 14px;
 }
 
@@ -71,12 +75,24 @@ a code {
   color: white;
 }
 
-#header h1 a {
-  text-decoration: none;
+#header h1 {
+  background: url("/static/sarnote.png") no-repeat;
+  margin-top: 8px;
+  margin-left: 20px;
+  height: 64px;
+  font-size: 20pt;
 }
 
-#header h1 a img {
-  border: 0;
+#header h1 div.title {
+  padding-top: 10px;
+  padding-left: 72px;
+}
+#header h1 div.title a {
+  text-decoration: none;
+}
+#header h1 div.zen {
+  padding-left: 72px;
+  font-size: 14px;
 }
 
 #footer,

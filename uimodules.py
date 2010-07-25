@@ -1,5 +1,4 @@
 import tornado.web
-from google.appengine.api import memcache
 
 from db import get_tags, get_comments_count
 

@@ -2,16 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
-    <title>{{ escape(handler.settings["blog_title"]) }}</title>
+    <title>{{ escape(handler.settings["app_title"]) }}</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon"/>
-    <link rel="alternate" href="/feed" type="application/atom+xml" title="{{ escape(handler.settings["blog_title"]) }}"/>
+    <link rel="alternate" href="/feed" type="application/atom+xml" title="{{ escape(handler.settings["app_title"]) }}"/>
     <link rel="stylesheet" href="/static/css/layout.css" type="text/css"/>
     {% block head %}{% end %}
   </head>
   <body>
     <div id="wrapper">
       <div id="header">
-        <div style="float:right">
+        <div style="float:right;">
           {% if current_user %}
             {{ escape(current_user.nickname()) }}
             <a href="{{ escape(users.create_logout_url(request.uri)) }}">{{ _("Sign out") }}</a>
@@ -19,7 +19,14 @@
             {{ _('<a href="%(url)s">Sign in</a>') % {"url": escape(users.create_login_url(request.uri))} }}
           {% end %}
         </div>
-        <h1><a href="/"><img src="/static/sarnote.png" />{{ escape(handler.settings["blog_title"]) }}</a></h1>
+        <h1>
+          <div class="title">
+            <a href="/">{{ escape(handler.settings["app_title"]) }}</a>
+          </div>
+          <div class="zen">
+            <span style="color:#0FE;">$</span> <span style="color:#0C0;">python</span> -m <span style="color:#0F0;">this</span>
+          </div>
+        </h1>
       </div>
       <div id="body">{% block body %}{% end %}</div>
       <div class="visualclear"><!-- --></div>

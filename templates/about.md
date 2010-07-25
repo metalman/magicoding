@@ -1,43 +1,38 @@
-About this blog
----------------
+App
+---
 
-### Why this blog
+### Why
 
-Because I can't use [my Blogger](http://halfcool-devel.blogspot.com/)
-and [my Google site](http://sites.google.com/site/halfcool/)
-directly for a long time.
-I'm just a programmer and I do all about programming. :-)
+Because I can't use
+[my blogger](http://halfcool-devel.blogspot.com/)
+and [my google site](http://sites.google.com/site/halfcool/)
+directly for a long time.  
 
-### How did this blog come out
+### How
 
-This blog is modified from the appengine demo of
-[Tornado](http://github.com/facebook/tornado).
-And the Models Index and paging code is modified
+This app is modified from the appengine demo of
+[Tornado](http://github.com/facebook/tornado).  
+The model index and paging code is modified
 from [董洵](http://www.alexdong.com/)'s speech
 **深入云计算平台之Google App Engine**
 on 2008 SD2.0 Conference.
 
-About the author
-----------------
+Author
+------
 
-### Overview
+### Who
 
-My name is Kaizhao Zhang.
-I'm Chaoshanese.
-Graduated from SCUT in Jul,2005.
+![](/static/zkc.jpg)  
+My name is **Kaizhao Zhang**.  
+I'm Chaoshanese. Graduated from **SCUT** in Jul,2005.  
+I'm working under **Archlinux**, Fedora, Debian, Cygwin, etc.  
+I'm interested in C/C++, **Python**, etc.
 
-I'm deep in learning computer technologies.
-I use Fedora, Debian and Cygwin for study and working now.
-I'm interested in C, Python, etc.
-And I'm interested in both web development and game development.
+### Contact
 
-### Gmail
+    $ python2 -c 'print "%s@%s.com" % ("zhangkaizhao", "gmail")'
 
-In [Python](http://www.python.org/):
-
-    "zhangkaizhao AT gmail DOT com".replace(' AT ', '@').replace(' DOT ', '.')
-
-### Links
+### Where
 
   * [http://halfcool-devel.blogspot.com/](http://halfcool-devel.blogspot.com/)
   * [http://hi.baidu.com/whycrying](http://hi.baidu.com/whycrying)
@@ -46,20 +41,12 @@ In [Python](http://www.python.org/):
   * douban: [@halfcool](http://www.douban.com/people/halfcool/)
   * zeuux: [@halfcool](http://www.zeuux.com/friend/user/halfcool/)
 
-Observing
----------
-
-  * Languages: [Go](http://golang.org/), [Lua](http://www.lua.org/)
-  * NoSQL: [Redis](http://code.google.com/p/redis), [MongoDB](http://www.mongodb.org/)
-  * Python Web Servers: [Tornado](http://github.com/facebook/tornado), [gevent](http://bitbucket.org/denis/gevent/)
-
-Some links
-----------
+Reading
+-------
 
   * [LinuxTOY](http://linuxtoy.org/)
   * [cloudwu](http://blog.codingnow.com/)
-  * [Tim](http://timyang.net/)
-  * [Nicholas](http://nichol.as/)
+  * ...
 
 --  
-Last updated on May,14,2010
+Last updated on Jul,25,2010

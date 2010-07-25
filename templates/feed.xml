@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   {% set date_format = "%Y-%m-%dT%H:%M:%SZ" %}
-  <title>{{ escape(handler.settings["blog_title"]) }}</title>
+  <title>{{ escape(handler.settings["app_title"]) }}</title>
   {% if len(entries) > 0 %}
     <updated>{{ max(e.updated for e in entries).strftime(date_format) }}</updated>
   {% else %}
     <updated>{{ datetime.datetime.utcnow().strftime(date_format) }}</updated>
   {% end %}
   <id>http://{{ request.host }}/</id>
-  <link rel="alternate" href="http://{{ request.host }}/" title="{{ escape(handler.settings["blog_title"]) }}" type="text/html"/>
-  <link rel="self" href="{{ request.full_url() }}" title="{{ escape(handler.settings["blog_title"]) }}" type="application/atom+xml"/>
-  <author><name>{{ escape(handler.settings["blog_title"]) }}</name></author>
+  <link rel="alternate" href="http://{{ request.host }}/" title="{{ escape(handler.settings["app_title"]) }}" type="text/html"/>
+  <link rel="self" href="{{ request.full_url() }}" title="{{ escape(handler.settings["app_title"]) }}" type="application/atom+xml"/>
   {% for entry in entries %}
     <entry>
       <id>http://{{ request.host }}/entry/{{ str(entry.index) }}</id>
@@ -21,6 +20,9 @@
       <content type="xhtml" xml:base="http://{{ request.host }}/">
         <div xmlns="http://www.w3.org/1999/xhtml">{{ entry.html }}</div>
       </content>
+      <author>
+        <name>{{ escape(handler.settings["author"]) }}</name>
+      </author>
     </entry>
   {% end %}
 </feed>

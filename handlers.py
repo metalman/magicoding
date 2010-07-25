@@ -1,10 +1,12 @@
 import markdown
 import functools
+import os
 import os.path
 import tornado.web
 import tornado.escape
 
 from google.appengine.api import users
+from google.appengine.api import mail
 
 from lib import htmlconverter
 import config, db
@@ -136,13 +138,24 @@ class CommentHandler(BaseHandler):
         if not isinstance(content, unicode):
             content = unicode(content, 'utf-8')
         if len(content) > 1000: raise tornado.web.HTTPError(404)
-        content=unicode(htmlconverter.webtext2html(content), 'utf-8')
+        author = self.get_argument("author")
         db.post_comment(
             entry_index=entry_index,
-            author=self.get_argument("author"),
+            author=author,
             website=website,
-            content=content,
+            content=unicode(htmlconverter.webtext2html(content), 'utf-8'),
         )
+
+        # XXX send mail to admins
+        sender = config.AUTHOR_EMAIL
+        subject = "Someone posts a comment for entry #%s." % entry_index
+        comments_url = "http://%s.appspot.com/entry/%s#comments" % \
+                (os.environ["APPLICATION_ID"], str(entry_index))
+        body = subject + "\n" + \
+                "View it from url: " + comments_url + " .\n" + \
+                "Content: \n" + content
+        mail.send_mail_to_admins(sender, subject, body)
+
         self.redirect("/entry/" + str(entry_index) + '#comments')
 
 

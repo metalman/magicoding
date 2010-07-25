@@ -18,11 +18,11 @@
 
   <div class="extra">
     <div class="metadata">
-      <a href="/entry/{{ str(entry.index) }}#comments">{{ comments_count_str }}</a>
-      {% if (entry.updated - entry.published).seconds %}
-        | Updated at:
-        <span class="date">{{ locale.format_date(entry.updated, gmt_offset=-480, full_format=True) }} <small>(+800TZ)</small></span>
+      {% if (entry.updated - entry.published).seconds > 60 %}
+        Updated at:
+        <span class="date">{{ locale.format_date(entry.updated, gmt_offset=-480, full_format=True) }} <small>(+800TZ)</small></span><br />
       {% end %}
+      <a href="/entry/{{ str(entry.index) }}#comments">{{ comments_count_str }}</a>
     </div>
 
     {% if current_user and current_user.administrator %}

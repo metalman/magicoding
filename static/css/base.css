@@ -41,7 +41,8 @@
   line-height: 16pt;
 }
 
-.entry .extra .metadata {
+.entry .extra .metadata,
+.entry .extra .admin {
   padding: 2px 4px;
 }
 

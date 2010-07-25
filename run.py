@@ -9,7 +9,8 @@ from uimodules import ui_modules
 
 
 settings = {
-    "blog_title": config.BLOG_TITLE,
+    "app_title": config.APP_TITLE,
+    "author": config.AUTHOR,
     "template_path": config.TEMPLATE_PATH,
     "cookie_secret": config.cookie_secret,
     "xsrf_cookies": True,

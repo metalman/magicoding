@@ -120,7 +120,7 @@ def update_entry(index, title, content, html, tags):
     entry_tags = entry.tags
     removed_entry_tags = set(entry_tags) - set(tags)
     added_entry_tags = set(tags) - set(entry_tags)
-    keeped_entry_tags = set(tags).intersection(set(entry_tags))
+    #keeped_entry_tags = set(tags).intersection(set(entry_tags))
     for tag in tags:
         old_tag = Tag.gql("WHERE name = :1", tag).get()
         new_tag = old_tag and old_tag or Tag(name=tag)
@@ -130,7 +130,6 @@ def update_entry(index, title, content, html, tags):
     for tag in removed_entry_tags:
         old_tag = Tag.gql("WHERE name = :1", tag).get()
         if old_tag:
-            old_tag_count = old_tag.count
             if old_tag.count < 2:
                 old_tag.delete()
             else:
