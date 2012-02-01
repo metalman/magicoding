@@ -147,14 +147,16 @@ class CommentHandler(BaseHandler):
         )
 
         # XXX send mail to admins
-        sender = config.AUTHOR_EMAIL
-        subject = "Someone posts a comment for entry #%s." % entry_index
-        comments_url = "http://%s.appspot.com/entry/%s#comments" % \
-                (os.environ["APPLICATION_ID"], str(entry_index))
-        body = subject + "\n" + \
-                "View it from url: " + comments_url + " .\n" + \
-                "Content: \n" + content
-        mail.send_mail_to_admins(sender, subject, body)
+        if author != config.AUTHOR:
+            sender = config.AUTHOR_EMAIL
+            subject = "%s posts a comment for entry #%s." % \
+                (author, entry_index)
+            comments_url = "http://%s.appspot.com/entry/%s#comments" % \
+                    (os.environ["APPLICATION_ID"], str(entry_index))
+            body = subject + "\n" + \
+                    "View it from url: " + comments_url + " .\n" + \
+                    "Content: \n" + content
+            mail.send_mail_to_admins(sender, subject, body)
 
         self.redirect("/entry/" + str(entry_index) + '#comments')
 
