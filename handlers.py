@@ -128,6 +128,9 @@ class ComposeHandler(BaseHandler):
 
 class CommentHandler(BaseHandler):
     def post(self):
+        if self.settings["disable_comment"]:
+            raise tornado.web.HTTPError(400,
+                "Comment is disabled by administrator.")
         entry_index = self.get_argument("entry_index")
         website=self.get_argument("website", "")
         if website:

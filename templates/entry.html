@@ -36,26 +36,30 @@
         </div>
       {% end %}
     {% end %}
-    <h4>Leave a comment</h4>
-    <form action="/comment" method="post" class="commentform">
-      <p>
-          <input type="text" name="author" size="20"
-            value="{{ current_user.nickname() if current_user else '' }}"/>
-          <lable for="author">Name</label> (* required)<br />
-      </p>
-      <p>
-        <input type="text" name="website" size="20" value=""/>
-        <lable for="website">Website</label><br />
-      </p>
-        <textarea name="content" rows="10" cols="50" class="content" id="commentcontent" onkeyup="charcount('commentcontent','counter', 1000);"></textarea><br />
-        (Now <span id="counter">1000</span> words remaining.)
-      </p>
-      <p>
-        <input type="submit" value="{{ _("Submit comment") }}" class="submit"/>
-      </p>
-      <input type="hidden" name="entry_index" value="{{ str(entry.index) }}"/>
-      {{ xsrf_form_html() }}
-    </form>
+    {% if handler.settings['disable_comment'] %}
+      <p>Comment is disabled by administrator.</p>
+    {% else %}
+      <h4>Leave a comment</h4>
+      <form action="/comment" method="post" class="commentform">
+        <p>
+            <input type="text" name="author" size="20"
+              value="{{ current_user.nickname() if current_user else '' }}"/>
+            <lable for="author">Name</label> (* required)<br />
+        </p>
+        <p>
+          <input type="text" name="website" size="20" value=""/>
+          <lable for="website">Website</label><br />
+        </p>
+          <textarea name="content" rows="10" cols="50" class="content" id="commentcontent" onkeyup="charcount('commentcontent','counter', 1000);"></textarea><br />
+          (Now <span id="counter">1000</span> words remaining.)
+        </p>
+        <p>
+          <input type="submit" value="{{ _("Submit comment") }}" class="submit"/>
+        </p>
+        <input type="hidden" name="entry_index" value="{{ str(entry.index) }}"/>
+        {{ xsrf_form_html() }}
+      </form>
+    {% end %}
   </div>
 {% end %}
 

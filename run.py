@@ -14,7 +14,9 @@ settings = {
     "template_path": config.TEMPLATE_PATH,
     "cookie_secret": config.cookie_secret,
     "xsrf_cookies": True,
+    "autoescape": None,
     "ui_modules": ui_modules,
+    "disable_comment": config.DISABLE_COMMENT,
 }
 application = tornado.wsgi.WSGIApplication(handlers, **settings)
 

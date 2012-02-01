@@ -1,6 +1,12 @@
 History
 =======
 
+* Feb,02,2012 version: 0.1.6 by zhangkaizhao@gmail.com
+
+    * Update Tornado to 2.2
+    * fix SignIn i18n bug
+    * disable comment by default
+
 * Jul,25,2010 version: 0.1.5 by zhangkaizhao@gmail.com
 
     Modify some appearance.
