@@ -16,7 +16,7 @@
             {{ escape(current_user.nickname()) }}
             <a href="{{ escape(users.create_logout_url(request.uri)) }}">{{ _("Sign out") }}</a>
           {% else %}
-            {{ _('<a href="%(url)s">Sign in</a>') % {"url": escape(users.create_login_url(request.uri))} }}
+            <a href="{{ escape(users.create_login_url(request.uri)) }}">{{ _('Sign in') }}</a>
           {% end %}
         </div>
         <h1>
