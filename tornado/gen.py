@@ -19,34 +19,51 @@ For example, the following asynchronous handler::
 could be written with ``gen`` as::
 
     class GenAsyncHandler(RequestHandler):
-        @asynchronous
-        @gen.engine
+        @gen.coroutine
         def get(self):
             http_client = AsyncHTTPClient()
-            response = yield gen.Task(http_client.fetch, "http://example.com")
+            response = yield http_client.fetch("http://example.com")
             do_something_with_response(response)
             self.render("template.html")
 
-`Task` works with any function that takes a ``callback`` keyword
-argument.  You can also yield a list of ``Tasks``, which will be
-started at the same time and run in parallel; a list of results will
+Most asynchronous functions in Tornado return a `.Future`;
+yielding this object returns its `~.Future.result`.
+
+For functions that do not return ``Futures``, `Task` works with any
+function that takes a ``callback`` keyword argument (most Tornado functions
+can be used in either style, although the ``Future`` style is preferred
+since it is both shorter and provides better exception handling)::
+
+    @gen.coroutine
+    def get(self):
+        yield gen.Task(AsyncHTTPClient().fetch, "http://example.com")
+
+You can also yield a list or dict of ``Futures`` and/or ``Tasks``, which will be
+started at the same time and run in parallel; a list or dict of results will
 be returned when they are all finished::
 
+    @gen.coroutine
     def get(self):
         http_client = AsyncHTTPClient()
-        response1, response2 = yield [gen.Task(http_client.fetch, url1),
-                                      gen.Task(http_client.fetch, url2)]
+        response1, response2 = yield [http_client.fetch(url1),
+                                      http_client.fetch(url2)]
+        response_dict = yield dict(response3=http_client.fetch(url3),
+                                   response4=http_client.fetch(url4))
+        response3 = response_dict['response3']
+        response4 = response_dict['response4']
+
+.. versionchanged:: 3.2
+   Dict support added.
 
 For more complicated interfaces, `Task` can be split into two parts:
 `Callback` and `Wait`::
 
     class GenAsyncHandler2(RequestHandler):
-        @asynchronous
-        @gen.engine
+        @gen.coroutine
         def get(self):
             http_client = AsyncHTTPClient()
             http_client.fetch("http://example.com",
-                              callback=(yield gen.Callback("key"))
+                              callback=(yield gen.Callback("key")))
             response = yield gen.Wait("key")
             do_something_with_response(response)
             self.render("template.html")
@@ -62,36 +79,60 @@ it was called with one argument, the result is that argument.  If it was
 called with more than one argument or any keyword arguments, the result
 is an `Arguments` object, which is a named tuple ``(args, kwargs)``.
 """
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, with_statement
 
+import collections
 import functools
-import operator
+import itertools
 import sys
 import types
 
-from tornado.stack_context import ExceptionStackContext
+from tornado.concurrent import Future, TracebackFuture
+from tornado.ioloop import IOLoop
+from tornado.stack_context import ExceptionStackContext, wrap
 
-class KeyReuseError(Exception): pass
-class UnknownKeyError(Exception): pass
-class LeakedCallbackError(Exception): pass
-class BadYieldError(Exception): pass
+
+class KeyReuseError(Exception):
+    pass
+
+
+class UnknownKeyError(Exception):
+    pass
+
+
+class LeakedCallbackError(Exception):
+    pass
+
+
+class BadYieldError(Exception):
+    pass
+
+
+class ReturnValueIgnoredError(Exception):
+    pass
+
 
 def engine(func):
-    """Decorator for asynchronous generators.
+    """Callback-oriented decorator for asynchronous generators.
 
-    Any generator that yields objects from this module must be wrapped
-    in this decorator.  The decorator only works on functions that are
-    already asynchronous.  For `~tornado.web.RequestHandler`
-    ``get``/``post``/etc methods, this means that both the
-    `tornado.web.asynchronous` and `tornado.gen.engine` decorators
-    must be used (for proper exception handling, ``asynchronous``
-    should come before ``gen.engine``).  In most other cases, it means
-    that it doesn't make sense to use ``gen.engine`` on functions that
-    don't already take a callback argument.
+    This is an older interface; for new code that does not need to be
+    compatible with versions of Tornado older than 3.0 the
+    `coroutine` decorator is recommended instead.
+
+    This decorator is similar to `coroutine`, except it does not
+    return a `.Future` and the ``callback`` argument is not treated
+    specially.
+
+    In most cases, functions decorated with `engine` should take
+    a ``callback`` argument and invoke it with their result when
+    they are finished.  One notable exception is the
+    `~tornado.web.RequestHandler` :ref:`HTTP verb methods <verbs>`,
+    which use ``self.finish()`` in place of a callback argument.
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         runner = None
+
         def handle_exception(typ, value, tb):
             # if the function throws an exception before its first "yield"
             # (or is not a generator at all), the Runner won't exist yet.
@@ -100,21 +141,131 @@ def engine(func):
             if runner is not None:
                 return runner.handle_exception(typ, value, tb)
             return False
-        with ExceptionStackContext(handle_exception):
-            gen = func(*args, **kwargs)
-            if isinstance(gen, types.GeneratorType):
-                runner = Runner(gen)
-                runner.run()
-                return
-            assert gen is None, gen
+        with ExceptionStackContext(handle_exception) as deactivate:
+            try:
+                result = func(*args, **kwargs)
+            except (Return, StopIteration) as e:
+                result = getattr(e, 'value', None)
+            else:
+                if isinstance(result, types.GeneratorType):
+                    def final_callback(value):
+                        if value is not None:
+                            raise ReturnValueIgnoredError(
+                                "@gen.engine functions cannot return values: "
+                                "%r" % (value,))
+                        assert value is None
+                        deactivate()
+                    runner = Runner(result, final_callback)
+                    runner.run()
+                    return
+            if result is not None:
+                raise ReturnValueIgnoredError(
+                    "@gen.engine functions cannot return values: %r" %
+                    (result,))
+            deactivate()
             # no yield, so we're done
     return wrapper
 
+
+def coroutine(func):
+    """Decorator for asynchronous generators.
+
+    Any generator that yields objects from this module must be wrapped
+    in either this decorator or `engine`.
+
+    Coroutines may "return" by raising the special exception
+    `Return(value) <Return>`.  In Python 3.3+, it is also possible for
+    the function to simply use the ``return value`` statement (prior to
+    Python 3.3 generators were not allowed to also return values).
+    In all versions of Python a coroutine that simply wishes to exit
+    early may use the ``return`` statement without a value.
+
+    Functions with this decorator return a `.Future`.  Additionally,
+    they may be called with a ``callback`` keyword argument, which
+    will be invoked with the future's result when it resolves.  If the
+    coroutine fails, the callback will not be run and an exception
+    will be raised into the surrounding `.StackContext`.  The
+    ``callback`` argument is not visible inside the decorated
+    function; it is handled by the decorator itself.
+
+    From the caller's perspective, ``@gen.coroutine`` is similar to
+    the combination of ``@return_future`` and ``@gen.engine``.
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        runner = None
+        future = TracebackFuture()
+
+        if 'callback' in kwargs:
+            callback = kwargs.pop('callback')
+            IOLoop.current().add_future(
+                future, lambda future: callback(future.result()))
+
+        def handle_exception(typ, value, tb):
+            try:
+                if runner is not None and runner.handle_exception(typ, value, tb):
+                    return True
+            except Exception:
+                typ, value, tb = sys.exc_info()
+            future.set_exc_info((typ, value, tb))
+            return True
+        with ExceptionStackContext(handle_exception) as deactivate:
+            try:
+                result = func(*args, **kwargs)
+            except (Return, StopIteration) as e:
+                result = getattr(e, 'value', None)
+            except Exception:
+                deactivate()
+                future.set_exc_info(sys.exc_info())
+                return future
+            else:
+                if isinstance(result, types.GeneratorType):
+                    def final_callback(value):
+                        deactivate()
+                        future.set_result(value)
+                    runner = Runner(result, final_callback)
+                    runner.run()
+                    return future
+            deactivate()
+            future.set_result(result)
+        return future
+    return wrapper
+
+
+class Return(Exception):
+    """Special exception to return a value from a `coroutine`.
+
+    If this exception is raised, its value argument is used as the
+    result of the coroutine::
+
+        @gen.coroutine
+        def fetch_json(url):
+            response = yield AsyncHTTPClient().fetch(url)
+            raise gen.Return(json_decode(response.body))
+
+    In Python 3.3, this exception is no longer necessary: the ``return``
+    statement can be used directly to return a value (previously
+    ``yield`` and ``return`` with a value could not be combined in the
+    same function).
+
+    By analogy with the return statement, the value argument is optional,
+    but it is never necessary to ``raise gen.Return()``.  The ``return``
+    statement can be used with no arguments instead.
+    """
+    def __init__(self, value=None):
+        super(Return, self).__init__()
+        self.value = value
+
+
 class YieldPoint(object):
-    """Base class for objects that may be yielded from the generator."""
+    """Base class for objects that may be yielded from the generator.
+
+    Applications do not normally need to use this class, but it may be
+    subclassed to provide additional yielding behavior.
+    """
     def start(self, runner):
         """Called by the runner after the generator has yielded.
-        
+
         No other methods will be called on this object before ``start``.
         """
         raise NotImplementedError()
@@ -128,11 +279,12 @@ class YieldPoint(object):
 
     def get_result(self):
         """Returns the value to use as the result of the yield expression.
-        
+
         This method will only be called once, and only after `is_ready`
         has returned true.
         """
         raise NotImplementedError()
+
 
 class Callback(YieldPoint):
     """Returns a callable object that will allow a matching `Wait` to proceed.
@@ -159,6 +311,7 @@ class Callback(YieldPoint):
     def get_result(self):
         return self.runner.result_callback(self.key)
 
+
 class Wait(YieldPoint):
     """Returns the argument passed to the result of a previous `Callback`."""
     def __init__(self, key):
@@ -173,8 +326,9 @@ class Wait(YieldPoint):
     def get_result(self):
         return self.runner.pop_result(self.key)
 
+
 class WaitAll(YieldPoint):
-    """Returns the results of multiple previous `Callbacks`.
+    """Returns the results of multiple previous `Callbacks <Callback>`.
 
     The argument is a sequence of `Callback` keys, and the result is
     a list of results in the same order.
@@ -189,10 +343,10 @@ class WaitAll(YieldPoint):
 
     def is_ready(self):
         return all(self.runner.is_ready(key) for key in self.keys)
-        
+
     def get_result(self):
         return [self.runner.pop_result(key) for key in self.keys]
-            
+
 
 class Task(YieldPoint):
     """Runs a single asynchronous operation.
@@ -203,9 +357,9 @@ class Task(YieldPoint):
 
     A `Task` is equivalent to a `Callback`/`Wait` pair (with a unique
     key generated automatically)::
-    
+
         result = yield gen.Task(func, args)
-        
+
         func(args, callback=(yield gen.Callback(key)))
         result = yield gen.Wait(key)
     """
@@ -221,12 +375,41 @@ class Task(YieldPoint):
         runner.register_callback(self.key)
         self.kwargs["callback"] = runner.result_callback(self.key)
         self.func(*self.args, **self.kwargs)
-    
+
     def is_ready(self):
         return self.runner.is_ready(self.key)
 
     def get_result(self):
         return self.runner.pop_result(self.key)
+
+
+class YieldFuture(YieldPoint):
+    def __init__(self, future, io_loop=None):
+        self.future = future
+        self.io_loop = io_loop or IOLoop.current()
+
+    def start(self, runner):
+        if not self.future.done():
+            self.runner = runner
+            self.key = object()
+            runner.register_callback(self.key)
+            self.io_loop.add_future(self.future, runner.result_callback(self.key))
+        else:
+            self.runner = None
+            self.result = self.future.result()
+
+    def is_ready(self):
+        if self.runner is not None:
+            return self.runner.is_ready(self.key)
+        else:
+            return True
+
+    def get_result(self):
+        if self.runner is not None:
+            return self.runner.pop_result(self.key).result()
+        else:
+            return self.result
+
 
 class Multi(YieldPoint):
     """Runs multiple asynchronous operations in parallel.
@@ -237,35 +420,61 @@ class Multi(YieldPoint):
     a list of ``YieldPoints``.
     """
     def __init__(self, children):
-        assert all(isinstance(i, YieldPoint) for i in children)
-        self.children = children
-    
+        self.keys = None
+        if isinstance(children, dict):
+            self.keys = list(children.keys())
+            children = children.values()
+        self.children = []
+        for i in children:
+            if isinstance(i, Future):
+                i = YieldFuture(i)
+            self.children.append(i)
+        assert all(isinstance(i, YieldPoint) for i in self.children)
+        self.unfinished_children = set(self.children)
+
     def start(self, runner):
         for i in self.children:
             i.start(runner)
 
     def is_ready(self):
-        return all(i.is_ready() for i in self.children)
+        finished = list(itertools.takewhile(
+            lambda i: i.is_ready(), self.unfinished_children))
+        self.unfinished_children.difference_update(finished)
+        return not self.unfinished_children
 
     def get_result(self):
-        return [i.get_result() for i in self.children]
+        result = (i.get_result() for i in self.children)
+        if self.keys is not None:
+            return dict(zip(self.keys, result))
+        else:
+            return list(result)
+
 
 class _NullYieldPoint(YieldPoint):
     def start(self, runner):
         pass
+
     def is_ready(self):
         return True
+
     def get_result(self):
         return None
+
+
+_null_yield_point = _NullYieldPoint()
+
 
 class Runner(object):
     """Internal implementation of `tornado.gen.engine`.
 
     Maintains information about pending callbacks and their results.
+
+    ``final_callback`` is run after the generator exits.
     """
-    def __init__(self, gen):
+    def __init__(self, gen, final_callback):
         self.gen = gen
-        self.yield_point = _NullYieldPoint()
+        self.final_callback = final_callback
+        self.yield_point = _null_yield_point
         self.pending_callbacks = set()
         self.results = {}
         self.running = False
@@ -276,13 +485,13 @@ class Runner(object):
     def register_callback(self, key):
         """Adds ``key`` to the list of callbacks."""
         if key in self.pending_callbacks:
-            raise KeyReuseError("key %r is already pending" % key)
+            raise KeyReuseError("key %r is already pending" % (key,))
         self.pending_callbacks.add(key)
 
     def is_ready(self, key):
         """Returns true if a result is available for ``key``."""
         if key not in self.pending_callbacks:
-            raise UnknownKeyError("key %r is not pending" % key)
+            raise UnknownKeyError("key %r is not pending" % (key,))
         return key in self.results
 
     def set_result(self, key, result):
@@ -309,6 +518,7 @@ class Runner(object):
                         if not self.yield_point.is_ready():
                             return
                         next = self.yield_point.get_result()
+                        self.yield_point = None
                     except Exception:
                         self.exc_info = sys.exc_info()
                 try:
@@ -319,8 +529,9 @@ class Runner(object):
                         yielded = self.gen.throw(*exc_info)
                     else:
                         yielded = self.gen.send(next)
-                except StopIteration:
+                except (StopIteration, Return) as e:
                     self.finished = True
+                    self.yield_point = _null_yield_point
                     if self.pending_callbacks and not self.had_exception:
                         # If we ran cleanly without waiting on all callbacks
                         # raise an error (really more of a warning).  If we
@@ -329,12 +540,17 @@ class Runner(object):
                         raise LeakedCallbackError(
                             "finished without waiting for callbacks %r" %
                             self.pending_callbacks)
+                    self.final_callback(getattr(e, 'value', None))
+                    self.final_callback = None
                     return
                 except Exception:
                     self.finished = True
+                    self.yield_point = _null_yield_point
                     raise
-                if isinstance(yielded, list):
+                if isinstance(yielded, (list, dict)):
                     yielded = Multi(yielded)
+                elif isinstance(yielded, Future):
+                    yielded = YieldFuture(yielded)
                 if isinstance(yielded, YieldPoint):
                     self.yield_point = yielded
                     try:
@@ -342,7 +558,8 @@ class Runner(object):
                     except Exception:
                         self.exc_info = sys.exc_info()
                 else:
-                    self.exc_info = (BadYieldError("yielded unknown object %r" % yielded),)
+                    self.exc_info = (BadYieldError(
+                        "yielded unknown object %r" % (yielded,)),)
         finally:
             self.running = False
 
@@ -355,7 +572,7 @@ class Runner(object):
             else:
                 result = None
             self.set_result(key, result)
-        return inner
+        return wrap(inner)
 
     def handle_exception(self, typ, value, tb):
         if not self.running and not self.finished:
@@ -365,18 +582,4 @@ class Runner(object):
         else:
             return False
 
-# in python 2.6+ this could be a collections.namedtuple
-class Arguments(tuple):
-    """The result of a yield expression whose callback had more than one
-    argument (or keyword arguments).
-
-    The `Arguments` object can be used as a tuple ``(args, kwargs)``
-    or an object with attributes ``args`` and ``kwargs``.
-    """
-    __slots__ = ()
-
-    def __new__(cls, args, kwargs):
-        return tuple.__new__(cls, (args, kwargs))
-
-    args = property(operator.itemgetter(0))
-    kwargs = property(operator.itemgetter(1))
+Arguments = collections.namedtuple('Arguments', ['args', 'kwargs'])

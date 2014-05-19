@@ -1,12 +1,8 @@
-#!/usr/bin/env python
-
 import tornado.wsgi
-import wsgiref.handlers
 
 import config
 from handlers import handlers
 from uimodules import ui_modules
-
 
 settings = {
     "app_title": config.APP_TITLE,
@@ -19,7 +15,3 @@ settings = {
     "disable_comment": config.DISABLE_COMMENT,
 }
 application = tornado.wsgi.WSGIApplication(handlers, **settings)
-
-
-if __name__ == "__main__":
-    wsgiref.handlers.CGIHandler().run(application)

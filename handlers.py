@@ -8,7 +8,7 @@ import tornado.escape
 from google.appengine.api import users
 from google.appengine.api import mail
 
-from lib import htmlconverter
+from lib import transforms
 import config, db
 
 __all__ = ['handlers']
@@ -135,18 +135,22 @@ class CommentHandler(BaseHandler):
         website=self.get_argument("website", "")
         if website:
             website = tornado.escape.url_escape(website)
-            if not website.startswith("http://") or not website.startswith("https://"):
+            if not (website.startswith("http://") or
+                    website.startswith("https://")):
                 website = u"http://" + website
         content = self.get_argument("content")
         if not isinstance(content, unicode):
-            content = unicode(content, 'utf-8')
-        if len(content) > 1000: raise tornado.web.HTTPError(404)
+            content = content.decode('utf-8')
+        if len(content) > 1000:
+            raise tornado.web.HTTPError(400)
         author = self.get_argument("author")
+        html = transforms.convertWebIntelligentPlainTextToHtml(
+            content).decode('utf-8')
         db.post_comment(
             entry_index=entry_index,
             author=author,
             website=website,
-            content=unicode(htmlconverter.webtext2html(content), 'utf-8'),
+            content=html,
         )
 
         # XXX send mail to admins
@@ -161,7 +165,7 @@ class CommentHandler(BaseHandler):
                     "Content: \n" + content
             mail.send_mail_to_admins(sender, subject, body)
 
-        self.redirect("/entry/" + str(entry_index) + '#comments')
+        self.redirect("/entry/" + str(entry_index) + "#comments")
 
 
 class AboutHandler(BaseHandler):

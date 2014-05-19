@@ -1,6 +1,13 @@
 History
 =======
 
+* May,19,2014 version: 0.1.7 by zhangkaizhao@gmail.com
+
+    * migrate to the High Replication Datastore (HRD)
+    * migrate to Python 2.7
+    * update Tornado to 3.2.1
+    * update lib/transforms.py (plone.intelligenttext to 2.0.2)
+
 * Feb,02,2012 version: 0.1.6 by zhangkaizhao@gmail.com
 
     * Update Tornado to 2.2

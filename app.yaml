@@ -1,7 +1,8 @@
-application: magicoding
-version: 1
-runtime: python
+application: magicoding-hrd
+version: 2
+runtime: python27
 api_version: 1
+threadsafe: yes
 
 handlers:
 - url: /static/
@@ -16,4 +17,4 @@ handlers:
   upload: static/robots.txt
 
 - url: /.*
-  script: run.py
+  script: app.application
